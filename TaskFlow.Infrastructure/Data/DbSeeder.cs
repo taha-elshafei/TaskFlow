@@ -18,6 +18,7 @@ public class DbSeeder
 
     public async Task SeedAsync()
     {
+        await _context.Database.MigrateAsync();
         await SeedPermissionsAsync();
         await SeedRolesAsync();
         await SeedAdminUserAsync();
