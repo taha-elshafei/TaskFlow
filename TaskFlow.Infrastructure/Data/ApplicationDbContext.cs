@@ -14,6 +14,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<TaskItem> TaskItems => Set<TaskItem>();
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
