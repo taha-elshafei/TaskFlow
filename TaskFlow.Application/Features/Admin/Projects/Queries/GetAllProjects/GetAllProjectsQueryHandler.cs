@@ -1,3 +1,5 @@
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MediatR;
 using TaskFlow.Application.Common;
 using TaskFlow.Application.Features.Admin.Projects.DTOs;
@@ -9,10 +11,12 @@ namespace TaskFlow.Application.Features.Admin.Projects.Queries.GetAllProjects;
 public class GetAllProjectsQueryHandler : IRequestHandler<GetAllProjectsQuery, Result<PagedResult<ProjectListDto>>>
 {
     private readonly IRepository<Project> _projectRepository;
+    private readonly IMapper _mapper;
 
-    public GetAllProjectsQueryHandler(IRepository<Project> projectRepository)
+    public GetAllProjectsQueryHandler(IRepository<Project> projectRepository, IMapper mapper)
     {
         _projectRepository = projectRepository;
+        _mapper = mapper;
     }
 
     public async Task<Result<PagedResult<ProjectListDto>>> Handle(GetAllProjectsQuery request, CancellationToken cancellationToken)
@@ -28,14 +32,7 @@ public class GetAllProjectsQueryHandler : IRequestHandler<GetAllProjectsQuery, R
             .OrderByDescending(p => p.CreatedAt)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
-            .Select(p => new ProjectListDto
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
-                CreatedAt = p.CreatedAt,
-                TaskCount = p.Tasks.Count
-            })
+            .ProjectTo<ProjectListDto>(_mapper.ConfigurationProvider)
             .ToList();
 
         return Result.Success(new PagedResult<ProjectListDto>

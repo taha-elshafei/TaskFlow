@@ -18,13 +18,17 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
     }
 
     public async Task<T?> GetByIdAsync(Guid id)
-        => await _dbSet.FindAsync(id);
+    {
+        return await _dbSet.FindAsync(id);
+    }
 
     public async Task<IReadOnlyList<T>> GetAllAsync()
         => await _dbSet.ToListAsync();
 
     public async Task<IReadOnlyList<T>> FindAsync(Expression<Func<T, bool>> predicate)
-        => await _dbSet.Where(predicate).ToListAsync();
+    {
+        return await _dbSet.Where(predicate).ToListAsync();
+    }
 
     public IQueryable<T> Query()
         => _dbSet.AsQueryable();

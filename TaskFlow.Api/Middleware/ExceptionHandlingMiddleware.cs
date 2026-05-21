@@ -29,18 +29,31 @@ public class ExceptionHandlingMiddleware
 
     private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        _logger.LogError(exception, "An unhandled exception occurred");
+        _logger.LogError(exception, "Unhandled exception");
 
-        var (statusCode, message) = exception switch
+        int statusCode;
+        string message;
+
+        if (exception is ValidationException validationEx)
         {
-            ValidationException validationEx => (
-                (int)HttpStatusCode.BadRequest,
-                string.Join("; ", validationEx.Errors.Select(e => e.ErrorMessage))
-            ),
-            UnauthorizedAccessException => ((int)HttpStatusCode.Unauthorized, "Unauthorized"),
-            KeyNotFoundException => ((int)HttpStatusCode.NotFound, "Resource not found"),
-            _ => ((int)HttpStatusCode.InternalServerError, "An unexpected error occurred")
-        };
+            statusCode = (int)HttpStatusCode.BadRequest;
+            message = string.Join("; ", validationEx.Errors.Select(e => e.ErrorMessage));
+        }
+        else if (exception is UnauthorizedAccessException)
+        {
+            statusCode = (int)HttpStatusCode.Unauthorized;
+            message = "Unauthorized";
+        }
+        else if (exception is KeyNotFoundException)
+        {
+            statusCode = (int)HttpStatusCode.NotFound;
+            message = "Not found";
+        }
+        else
+        {
+            statusCode = (int)HttpStatusCode.InternalServerError;
+            message = "Something went wrong";
+        }
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = statusCode;

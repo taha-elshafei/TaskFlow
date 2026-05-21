@@ -1,3 +1,4 @@
+using AutoMapper;
 using MediatR;
 using TaskFlow.Application.Common;
 using TaskFlow.Application.Features.Admin.Projects.DTOs;
@@ -10,11 +11,13 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
 {
     private readonly IRepository<Project> _projectRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public CreateProjectCommandHandler(IRepository<Project> projectRepository, IUnitOfWork unitOfWork)
+    public CreateProjectCommandHandler(IRepository<Project> projectRepository, IUnitOfWork unitOfWork, IMapper mapper)
     {
         _projectRepository = projectRepository;
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
 
     public async Task<Result<ProjectDetailDto>> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
@@ -28,13 +31,6 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
         await _projectRepository.AddAsync(project);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new ProjectDetailDto
-        {
-            Id = project.Id,
-            Name = project.Name,
-            Description = project.Description,
-            CreatedAt = project.CreatedAt,
-            TaskCount = 0
-        }, 201);
+        return Result.Success(_mapper.Map<ProjectDetailDto>(project), 201);
     }
 }

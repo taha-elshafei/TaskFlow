@@ -21,8 +21,8 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand, Result>
         var tokens = await _refreshTokenRepository.FindAsync(rt => rt.Token == request.RefreshToken && !rt.IsRevoked);
         var token = tokens.FirstOrDefault();
 
-        if (token is null)
-            return Result.Failure("Invalid refresh token", 400);
+        if (token == null)
+            return Result.Failure("Token not found or already revoked", 400);
 
         token.IsRevoked = true;
         _refreshTokenRepository.Update(token);

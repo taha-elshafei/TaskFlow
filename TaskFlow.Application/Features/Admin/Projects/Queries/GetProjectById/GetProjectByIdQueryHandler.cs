@@ -1,3 +1,4 @@
+using AutoMapper;
 using MediatR;
 using TaskFlow.Application.Common;
 using TaskFlow.Application.Features.Admin.Projects.DTOs;
@@ -9,10 +10,12 @@ namespace TaskFlow.Application.Features.Admin.Projects.Queries.GetProjectById;
 public class GetProjectByIdQueryHandler : IRequestHandler<GetProjectByIdQuery, Result<ProjectDetailDto>>
 {
     private readonly IRepository<Project> _projectRepository;
+    private readonly IMapper _mapper;
 
-    public GetProjectByIdQueryHandler(IRepository<Project> projectRepository)
+    public GetProjectByIdQueryHandler(IRepository<Project> projectRepository, IMapper mapper)
     {
         _projectRepository = projectRepository;
+        _mapper = mapper;
     }
 
     public async Task<Result<ProjectDetailDto>> Handle(GetProjectByIdQuery request, CancellationToken cancellationToken)
@@ -26,14 +29,9 @@ public class GetProjectByIdQueryHandler : IRequestHandler<GetProjectByIdQuery, R
             .Select(p => p.Tasks.Count)
             .FirstOrDefault();
 
-        return Result.Success(new ProjectDetailDto
-        {
-            Id = project.Id,
-            Name = project.Name,
-            Description = project.Description,
-            CreatedAt = project.CreatedAt,
-            UpdatedAt = project.UpdatedAt,
-            TaskCount = taskCount
-        });
+        var dto = _mapper.Map<ProjectDetailDto>(project);
+        dto.TaskCount = taskCount;
+
+        return Result.Success(dto);
     }
 }

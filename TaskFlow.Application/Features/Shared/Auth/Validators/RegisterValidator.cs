@@ -8,18 +8,16 @@ public class RegisterValidator : AbstractValidator<RegisterCommand>
     public RegisterValidator()
     {
         RuleFor(x => x.FullName)
-            .NotEmpty().WithMessage("Full name is required")
-            .MaximumLength(100).WithMessage("Full name must not exceed 100 characters");
+            .NotEmpty()
+            .MaximumLength(100);
 
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email is required")
-            .EmailAddress().WithMessage("Invalid email format");
+            .NotEmpty()
+            .EmailAddress().WithMessage("Not a valid email");
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Password is required")
+            .NotEmpty()
             .MinimumLength(6).WithMessage("Password must be at least 6 characters")
-            .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter")
-            .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter")
-            .Matches("[0-9]").WithMessage("Password must contain at least one digit");
+            .Matches(@"(?=.*[A-Z])(?=.*[a-z])(?=.*\d)").WithMessage("Password must contain uppercase, lowercase, and a digit");
     }
 }

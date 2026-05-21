@@ -37,7 +37,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
         var users = await _userRepository.FindAsync(u => u.Email == request.Email);
         var user = users.FirstOrDefault();
 
-        if (user is null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
+        if (user == null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
             return Result.Failure<AuthResponseDto>("Invalid email or password", 401);
 
         var roleNames = await _authService.GetUserRolesAsync(user.Id);

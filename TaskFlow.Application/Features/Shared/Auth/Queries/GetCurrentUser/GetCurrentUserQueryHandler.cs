@@ -1,3 +1,4 @@
+using AutoMapper;
 using MediatR;
 using TaskFlow.Application.Common;
 using TaskFlow.Application.Features.Shared.Auth.DTOs;
@@ -12,15 +13,18 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, R
     private readonly IRepository<User> _userRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IAuthService _authService;
+    private readonly IMapper _mapper;
 
     public GetCurrentUserQueryHandler(
         IRepository<User> userRepository,
         ICurrentUserService currentUserService,
-        IAuthService authService)
+        IAuthService authService,
+        IMapper mapper)
     {
         _userRepository = userRepository;
         _currentUserService = currentUserService;
         _authService = authService;
+        _mapper = mapper;
     }
 
     public async Task<Result<UserDto>> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
@@ -34,12 +38,9 @@ public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, R
 
         var roles = await _authService.GetUserRolesAsync(user.Id);
 
-        return Result.Success(new UserDto
-        {
-            Id = user.Id,
-            FullName = user.FullName,
-            Email = user.Email,
-            Roles = roles
-        });
+        var dto = _mapper.Map<UserDto>(user);
+        dto.Roles = roles;
+
+        return Result.Success(dto);
     }
 }
